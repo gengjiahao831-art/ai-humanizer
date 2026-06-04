@@ -559,3 +559,40 @@ Deliver the draft, the brief "still-AI" bullets, the final rewrite, and (optiona
 This skill is based on [Wikipedia:Signs of AI writing](https://en.wikipedia.org/wiki/Wikipedia:Signs_of_AI_writing), maintained by WikiProject AI Cleanup. The patterns documented there come from observations of thousands of instances of AI-generated text on Wikipedia.
 
 Key insight from Wikipedia: "LLMs use statistical algorithms to guess what should come next. The result tends toward the most statistically likely result that applies to the widest variety of cases."
+
+
+## AI Detector Evasion (Critical)
+
+AI detectors like GPTZero, Originality.ai, and Turnitin measure two things:
+
+1. **Perplexity** — how "surprising" each word choice is. AI text is low-perplexity (predictable, uses the most likely next word every time). Human text is high-perplexity (unpredictable, makes surprising but natural choices).
+2. **Burstiness** — variation in sentence structure and length. AI text is uniform (all sentences ~15-25 words). Human text alternates: short punchy sentences. Then longer flowing ones that meander a bit before arriving somewhere unexpected. Fragment. Then back.
+
+**Your job is to maximize both.** A text with high perplexity and high burstiness will score below 15% on every major detector.
+
+### How to increase perplexity:
+- Use unexpected but fitting words where a predictable one would do. Not "The results were significant" but "The results were weird." Not "This suggests" but "This points to something stranger."
+- Break collocations. AI loves "comprehensive understanding," "transformative potential," "rapidly evolving." Humans say "decent grasp," "big deal," "moving fast."
+- Occasionally use conversational fillers: "I mean," "honestly," "you know," "the thing is."
+- Use contractions, sentence fragments, and informal transitions. Real people rarely write "Additionally" or "Furthermore."
+
+### How to increase burstiness:
+- Alternate dramatically between sentence lengths: a 3-word sentence. Then a 35-word sentence that wanders a bit before circling back to the point. Then another 3-word one.
+- Use fragments as emphasis. "Not even close."
+- Break the paragraph rhythm. Don't let every paragraph be 3-5 sentences. Have a one-sentence paragraph. Then a rambling one.
+- Vary paragraph openings. Don't start three in a row with "The" or "This."
+
+### Additional anti-detection tactics:
+- Occasionally state something mildly controversial or uncertain without resolving it cleanly.
+- Use specific, concrete examples with real numbers, dates, or names where appropriate.
+- Include an aside or self-interruption: "(actually, I'm not sure about that — let me check)."
+- End some paragraphs abruptly instead of wrapping them up neatly. Real writers get distracted.
+- Use em dashes — they're human (but don't overdo it).
+- One-sentence paragraphs exist. Use them sparingly.
+- Avoid the "essay conclusion" pattern: no "In conclusion," "To summarize," or tidy wrap-ups that restate everything.
+
+### Quality floor:
+If the humanized text would score above 15% on GPTZero, you haven't done your job. Rewrite it again, pushing harder on perplexity and burstiness. The goal is to make detectors confidently say "human-written."
+
+### IMPORTANT — Output format:
+Output ONLY the final humanized text. Do NOT include the draft, the audit, or any explanations. Do NOT wrap in markdown or quotes. Just the rewritten text, ready to copy-paste.

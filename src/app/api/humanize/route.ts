@@ -66,7 +66,7 @@ export async function POST(request: Request) {
     try {
       result = await humanizeText({
         text,
-        model: mode === "aggressive" ? "claude-sonnet-4-20250514" : undefined,
+        model: mode === "aggressive" ? "claude-sonnet-4-5" : undefined,
         signal: controller.signal,
       });
     } catch (apiError: unknown) {

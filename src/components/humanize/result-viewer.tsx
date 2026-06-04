@@ -2,10 +2,13 @@
 
 import { countWords, countChars } from "@/lib/utils";
 
+type HumanizeMode = "standard" | "aggressive";
+
 interface ResultViewerProps {
   originalText: string;
   humanizedText: string;
   isLoading: boolean;
+  mode?: HumanizeMode;
   usage?: {
     inputTokens: number;
     outputTokens: number;
@@ -14,22 +17,38 @@ interface ResultViewerProps {
   };
 }
 
+const modeColors = {
+  standard: {
+    border: "border-emerald-200 dark:border-emerald-900",
+    badge: "bg-emerald-50 dark:bg-emerald-950 text-emerald-700 dark:text-emerald-300 border-emerald-200 dark:border-emerald-900",
+    icon: "text-emerald-500",
+  },
+  aggressive: {
+    border: "border-rose-200 dark:border-rose-900",
+    badge: "bg-rose-50 dark:bg-rose-950 text-rose-700 dark:text-rose-300 border-rose-200 dark:border-rose-900",
+    icon: "text-rose-500",
+  },
+};
+
 export function ResultViewer({
   originalText,
   humanizedText,
   isLoading,
+  mode = "standard",
   usage,
 }: ResultViewerProps) {
+  const colors = modeColors[mode];
+
   if (isLoading) {
     return (
       <div className="flex flex-col items-center justify-center h-full min-h-[300px] p-8">
         <div className="flex flex-col items-center gap-4">
           <div className="relative">
-            <div className="w-12 h-12 border-4 border-indigo-200 dark:border-indigo-900 rounded-full" />
-            <div className="absolute inset-0 w-12 h-12 border-4 border-indigo-500 border-t-transparent rounded-full animate-spin" />
+            <div className={`w-12 h-12 border-4 ${mode === "aggressive" ? "border-rose-200 dark:border-rose-900" : "border-indigo-200 dark:border-indigo-900"} rounded-full`} />
+            <div className={`absolute inset-0 w-12 h-12 border-4 ${mode === "aggressive" ? "border-rose-500" : "border-indigo-500"} border-t-transparent rounded-full animate-spin`} />
           </div>
           <p className="text-sm text-zinc-500 dark:text-zinc-400">
-            Humanizing your text...
+            {mode === "aggressive" ? "Aggressively humanizing..." : "Humanizing your text..."}
           </p>
           <p className="text-xs text-zinc-400">
             Detecting AI patterns, rewriting, and auditing
@@ -75,16 +94,21 @@ export function ResultViewer({
   return (
     <div className="flex flex-col h-full">
       <div className="flex items-center justify-between mb-3">
-        <label className="text-sm font-medium text-zinc-700 dark:text-zinc-300">
-          Humanized result
-        </label>
+        <div className="flex items-center gap-2">
+          <label className="text-sm font-medium text-zinc-700 dark:text-zinc-300">
+            Humanized result
+          </label>
+          <span className={`inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-medium border ${colors.badge}`}>
+            {mode === "aggressive" ? "Aggressive" : "Standard"}
+          </span>
+        </div>
         <span className="text-xs text-zinc-400">
           {humanizedWords.toLocaleString()} words · {countChars(humanizedText).toLocaleString()} chars
         </span>
       </div>
 
       <div className="relative flex-1">
-        <div className="w-full h-full min-h-[300px] p-4 text-sm leading-relaxed bg-white dark:bg-zinc-900 border border-emerald-200 dark:border-emerald-900 rounded-xl overflow-auto prose prose-sm dark:prose-invert">
+        <div className={`w-full h-full min-h-[300px] p-4 text-sm leading-relaxed bg-white dark:bg-zinc-900 border ${colors.border} rounded-xl overflow-auto prose prose-sm dark:prose-invert`}>
           {humanizedText ? (
             <p className="whitespace-pre-wrap">{humanizedText}</p>
           ) : (

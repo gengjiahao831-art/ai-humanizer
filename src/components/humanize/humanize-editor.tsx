@@ -4,6 +4,8 @@ import { useState, useCallback } from "react";
 import { TextInput } from "./text-input";
 import { ResultViewer } from "./result-viewer";
 
+type HumanizeMode = "standard" | "aggressive";
+
 interface HumanizeResponse {
   id: string;
   originalText: string;
@@ -22,6 +24,8 @@ export function HumanizeEditor() {
   const [result, setResult] = useState<HumanizeResponse | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [mode, setMode] = useState<HumanizeMode>("standard");
+  const [copied, setCopied] = useState(false);
 
   const handleHumanize = useCallback(async () => {
     if (!inputText.trim() || inputText.trim().length < 10) {
@@ -37,7 +41,7 @@ export function HumanizeEditor() {
       const response = await fetch("/api/humanize", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ text: inputText }),
+        body: JSON.stringify({ text: inputText, mode }),
       });
 
       const data = await response.json();
@@ -54,16 +58,52 @@ export function HumanizeEditor() {
     } finally {
       setIsLoading(false);
     }
-  }, [inputText]);
+  }, [inputText, mode]);
 
   const handleCopy = useCallback(() => {
     if (result?.humanizedText) {
       navigator.clipboard.writeText(result.humanizedText);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
     }
   }, [result]);
 
   return (
     <div>
+      {/* Mode toggle + action bar */}
+      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-6">
+        {/* Mode switcher */}
+        <div className="flex items-center gap-2 bg-zinc-100 dark:bg-zinc-800 p-1 rounded-lg">
+          <button
+            onClick={() => setMode("standard")}
+            className={`px-3 py-1.5 text-xs font-medium rounded-md transition-colors ${
+              mode === "standard"
+                ? "bg-white dark:bg-zinc-700 text-zinc-900 dark:text-zinc-100 shadow-sm"
+                : "text-zinc-500 dark:text-zinc-400 hover:text-zinc-700 dark:hover:text-zinc-300"
+            }`}
+          >
+            Standard
+          </button>
+          <button
+            onClick={() => setMode("aggressive")}
+            className={`px-3 py-1.5 text-xs font-medium rounded-md transition-colors ${
+              mode === "aggressive"
+                ? "bg-white dark:bg-zinc-700 text-indigo-600 dark:text-indigo-400 shadow-sm"
+                : "text-zinc-500 dark:text-zinc-400 hover:text-zinc-700 dark:hover:text-zinc-300"
+            }`}
+          >
+            Aggressive
+          </button>
+        </div>
+
+        {/* Mode description */}
+        <p className="text-xs text-zinc-400">
+          {mode === "standard"
+            ? "Natural humanization — removes AI patterns while keeping your voice."
+            : "Maximum rewrite — restructures aggressively for lowest AI detection."}
+        </p>
+      </div>
+
       {/* Error banner */}
       {error && (
         <div className="mb-6 p-3 bg-red-50 dark:bg-red-950 border border-red-200 dark:border-red-900 rounded-lg">
@@ -84,6 +124,7 @@ export function HumanizeEditor() {
           humanizedText={result?.humanizedText || ""}
           isLoading={isLoading}
           usage={result?.usage}
+          mode={mode}
         />
       </div>
 
@@ -92,19 +133,23 @@ export function HumanizeEditor() {
         <button
           onClick={handleHumanize}
           disabled={isLoading || inputText.trim().length < 10}
-          className="px-8 py-3 bg-indigo-600 hover:bg-indigo-700 disabled:bg-zinc-300 dark:disabled:bg-zinc-700 text-white text-sm font-medium rounded-xl transition-colors disabled:cursor-not-allowed flex items-center gap-2 shadow-sm"
+          className={`px-8 py-3 text-white text-sm font-medium rounded-xl transition-colors disabled:cursor-not-allowed flex items-center gap-2 shadow-sm ${
+            mode === "aggressive"
+              ? "bg-rose-600 hover:bg-rose-700 disabled:bg-zinc-300 dark:disabled:bg-zinc-700"
+              : "bg-indigo-600 hover:bg-indigo-700 disabled:bg-zinc-300 dark:disabled:bg-zinc-700"
+          }`}
         >
           {isLoading ? (
             <>
               <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-              Humanizing...
+              Humanizing{ mode === "aggressive" ? " aggressively" : "" }...
             </>
           ) : (
             <>
               <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                 <path strokeLinecap="round" strokeLinejoin="round" d="M9.813 15.904L9 18.75l-.813-2.846a4.5 4.5 0 00-3.09-3.09L2.25 12l2.846-.813a4.5 4.5 0 003.09-3.09L9 5.25l.813 2.846a4.5 4.5 0 003.09 3.09L15.75 12l-2.846.813a4.5 4.5 0 00-3.09 3.09zM18.259 8.715L18 9.75l-.259-1.035a3.375 3.375 0 00-2.455-2.456L14.25 6l1.036-.259a3.375 3.375 0 002.455-2.456L18 2.25l.259 1.035a3.375 3.375 0 002.455 2.456L21.75 6l-1.036.259a3.375 3.375 0 00-2.455 2.456z" />
               </svg>
-              Humanize
+              {mode === "aggressive" ? "Aggressive Humanize" : "Humanize"}
             </>
           )}
         </button>
@@ -114,10 +159,21 @@ export function HumanizeEditor() {
             onClick={handleCopy}
             className="px-4 py-3 text-sm font-medium text-zinc-700 dark:text-zinc-300 hover:bg-zinc-100 dark:hover:bg-zinc-800 rounded-xl transition-colors flex items-center gap-2 border border-zinc-200 dark:border-zinc-800"
           >
-            <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-              <path strokeLinecap="round" strokeLinejoin="round" d="M15.666 3.888A2.25 2.25 0 0013.5 2.25h-3c-1.03 0-1.9.693-2.166 1.638m7.332 0c.055.194.084.4.084.612v0a.75.75 0 01-.75.75H9a.75.75 0 01-.75-.75v0c0-.212.03-.418.084-.612m7.332 0c.646.049 1.288.11 1.927.184 1.1.128 1.907 1.077 1.907 2.185V19.5a2.25 2.25 0 01-2.25 2.25H6.75A2.25 2.25 0 014.5 19.5V6.257c0-1.108.806-2.057 1.907-2.185a48.208 48.208 0 011.927-.184" />
-            </svg>
-            Copy result
+            {copied ? (
+              <>
+                <svg className="w-4 h-4 text-emerald-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M4.5 12.75l6 6 9-13.5" />
+                </svg>
+                Copied!
+              </>
+            ) : (
+              <>
+                <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M15.666 3.888A2.25 2.25 0 0013.5 2.25h-3c-1.03 0-1.9.693-2.166 1.638m7.332 0c.055.194.084.4.084.612v0a.75.75 0 01-.75.75H9a.75.75 0 01-.75-.75v0c0-.212.03-.418.084-.612m7.332 0c.646.049 1.288.11 1.927.184 1.1.128 1.907 1.077 1.907 2.185V19.5a2.25 2.25 0 01-2.25 2.25H6.75A2.25 2.25 0 014.5 19.5V6.257c0-1.108.806-2.057 1.907-2.185a48.208 48.208 0 011.927-.184" />
+                </svg>
+                Copy result
+              </>
+            )}
           </button>
         )}
       </div>
