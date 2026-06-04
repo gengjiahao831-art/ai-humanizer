@@ -1,5 +1,7 @@
 import Link from "next/link";
 
+export const dynamic = "force-dynamic";
+
 export default function LandingPage() {
   return (
     <div className="min-h-full flex flex-col bg-zinc-50 dark:bg-zinc-950">
