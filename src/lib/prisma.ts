@@ -1,9 +1,9 @@
 import { PrismaClient } from "../generated/prisma/client";
-import { PrismaBetterSqlite3 } from "@prisma/adapter-better-sqlite3";
+import { PrismaNeon } from "@prisma/adapter-neon";
 
-// Prisma 7 requires an adapter for database connections
-const adapter = new PrismaBetterSqlite3({
-  url: process.env.DATABASE_URL || "file:./prisma/dev.db",
+// Neon serverless PostgreSQL adapter
+const adapter = new PrismaNeon({
+  connectionString: process.env.DATABASE_URL,
 });
 
 const globalForPrisma = globalThis as unknown as {
